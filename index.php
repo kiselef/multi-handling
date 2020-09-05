@@ -29,6 +29,7 @@ function handle_queue(SimpleQueue $queue)
                 continue;
             }
             Promise\wait(Promise\all($promises));
+            // echo '.';
         } catch (Exception $e) {
             \App\Logger::getInstance()->error($e->getMessage());
             continue;
