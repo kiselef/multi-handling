@@ -6,8 +6,8 @@ use Amp\Parallel\Worker;
 use Amp\Promise;
 use App\SimpleQueue;
 
-CONST QUEUE_MESSAGES_COUNT    = 10000;
-CONST QUEUE_GET_MESSAGE_LIMIT = 10;
+CONST QUEUE_MESSAGES_COUNT    = 1000;
+CONST QUEUE_GET_MESSAGE_LIMIT = 100;
 CONST QUEUE_EMPTY_SLEEP_MSEC  = 1000000;
 
 $queue = make_queue(QUEUE_MESSAGES_COUNT);
@@ -21,15 +21,13 @@ function handle_queue(SimpleQueue $queue)
 {
     while (true) {
         try {
-            \App\Cache::getInstance()->set('last_task', 0);
-
             $promises = get_promise_messages_from_queue($queue);
             if (empty($promises)) {
                 usleep(QUEUE_EMPTY_SLEEP_MSEC);
                 continue;
             }
             Promise\wait(Promise\all($promises));
-            // echo '.';
+            echo '.';
         } catch (Exception $e) {
             \App\Logger::getInstance()->error($e->getMessage());
             continue;
@@ -44,12 +42,19 @@ function handle_queue(SimpleQueue $queue)
 function get_promise_messages_from_queue(SimpleQueue $queue)
 {
     $promises = [];
+    $data_by_account = [];
+
     foreach ($queue->dequeueByCount(QUEUE_GET_MESSAGE_LIMIT) as $priority => $message) {
-        $data = json_decode($message, true);
+        $message = json_decode($message, true);
+        $data_by_account[$message['account_id']][] = $message;
 
-        $task = new \App\Task($data, \App\Cache::getInstance(), \App\Logger::getInstance());
-        $task->setPriority($priority);
+        if (empty($data_by_account)) {
+            break;
+        }
+    }
 
+    foreach ($data_by_account as $account_id => $account_data) {
+        $task = new \App\AccountConsistentTask($account_data, \App\Logger::getInstance());
         $promises[] = Worker\enqueueCallable([$task, 'run']);
     }
 
@@ -76,5 +81,5 @@ function make_queue(int $msg_count): SimpleQueue
  */
 function make_queue_msg()
 {
-    return json_encode(['account_id' => mt_rand(1, 1000)]);
+    return json_encode(['account_id' => mt_rand(1, 1000), 'example_token' => mt_rand(1000, 2000)]);
 }
