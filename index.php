@@ -6,11 +6,11 @@ use Amp\Parallel\Worker;
 use Amp\Promise;
 use App\SimpleQueue;
 
-CONST QUEUE_MESSAGES_COUNT    = 10000;
-CONST QUEUE_GET_MESSAGE_LIMIT = 1000;
-CONST QUEUE_EMPTY_SLEEP_MSEC  = 1000000;
+CONST QUEUE_SUMMARY_SIZE                = 10000;
+CONST QUEUE_GETTING_MESSAGES_CHUNK_SIZE = 1000;
+CONST QUEUE_EMPTY_SLEEP_MSEC            = 1000000;
 
-$queue = make_queue(QUEUE_MESSAGES_COUNT);
+$queue = make_queue(QUEUE_SUMMARY_SIZE);
 handle_queue($queue);
 
 /**
@@ -57,7 +57,7 @@ function get_promises_by_queue(SimpleQueue $queue): array
 function get_grouped_messages_by_queue(SimpleQueue $queue): array
 {
     $data_by_account = [];
-    foreach ($queue->dequeueChunk(QUEUE_GET_MESSAGE_LIMIT) as $message) {
+    foreach ($queue->dequeueChunk(QUEUE_GETTING_MESSAGES_CHUNK_SIZE) as $message) {
         $message = json_decode($message, true);
         $data_by_account[$message['account_id']][] = $message;
 
