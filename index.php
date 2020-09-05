@@ -7,7 +7,7 @@ use Amp\Promise;
 use App\SimpleQueue;
 
 CONST QUEUE_MESSAGES_COUNT    = 1000;
-CONST QUEUE_GET_MESSAGE_LIMIT = 100;
+CONST QUEUE_GET_MESSAGE_LIMIT = 10;
 CONST QUEUE_EMPTY_SLEEP_MSEC  = 1000000;
 
 $queue = make_queue(QUEUE_MESSAGES_COUNT);
@@ -24,7 +24,6 @@ function handle_queue(SimpleQueue $queue)
             \App\Cache::getInstance()->set('last_task', 0);
 
             $promises = get_promise_messages_from_queue($queue);
-            echo count($promises);
             if (empty($promises)) {
                 usleep(QUEUE_EMPTY_SLEEP_MSEC);
                 continue;
