@@ -9,9 +9,13 @@ namespace App;
  */
 class SimpleQueue extends \SplQueue
 {
-    public function dequeueByCount(int $messages_count)
+    /**
+     * @param int $chunk_size Число сообщений за раз.
+     * @return \Generator
+     */
+    public function dequeueChunk(int $chunk_size)
     {
-        for ($i = 0; $i < $messages_count; $i++) {
+        for ($i = 0; $i < $chunk_size; $i++) {
             if ($this->isEmpty()) {
                 break;
             }
