@@ -19,6 +19,9 @@ class AccountConsistentTask
         $this->logger = $logger;
     }
 
+    /**
+     * Внутри группы события обрабатываются последовательно.
+     */
     public function run(): void
     {
         foreach ($this->data as $data) {
