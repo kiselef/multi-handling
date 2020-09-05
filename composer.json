@@ -1,0 +1,14 @@
+{
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=7.2",
+        "amphp/amp": "^2.5",
+        "amphp/parallel": "^1.4",
+        "amphp/http-server": "^2.1",
+        "monolog/monolog": "^2.1"
+    }
+}
